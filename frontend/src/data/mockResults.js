@@ -1,0 +1,123 @@
+// Mock scan results and dietary presets matching reference screenshots exactly
+
+export const DIETARY_PRESETS = [
+  { id: 'gluten-free', label: 'Gluten-free', defaultSelected: true },
+  { id: 'nut-allergy', label: 'Nut allergy', defaultSelected: false },
+  { id: 'dairy-free', label: 'Dairy-free', defaultSelected: false },
+  { id: 'vegan', label: 'Vegan', defaultSelected: false },
+  { id: 'low-sugar', label: 'Low sugar', defaultSelected: true },
+  { id: 'low-sodium', label: 'Low sodium', defaultSelected: false },
+  { id: 'halal', label: 'Halal', defaultSelected: false },
+  { id: 'shellfish-allergy', label: 'Shellfish allergy', defaultSelected: false },
+];
+
+export const MOCK_RESULTS = {
+  unsafe: {
+    id: 'unsafe-scan',
+    status: 'Unsafe',
+    productName: 'Honey & Nut Oat Crunch Granola',
+    profileSummary: 'Gluten-free, Low sugar',
+    message: 'Contains barley malt and wheat flour, both gluten sources. Sugar is also over your limit.',
+    rawIngredientsText: 'Rolled oats, sugar, barley malt syrup, wheat flour, palm oil, honey, salt, natural flavors.',
+    ingredients: [
+      { text: 'Rolled oats', isFlagged: false },
+      { text: 'sugar', isFlagged: true, type: 'definite', reason: 'Above your selected limit (14g vs 5g limit).' },
+      { text: 'barley malt syrup', isFlagged: true, type: 'definite', reason: 'Contains gluten / derived from barley grains.' },
+      { text: 'wheat flour', isFlagged: true, type: 'definite', reason: 'Direct gluten source. Severe allergen conflict.' },
+      { text: 'palm oil', isFlagged: false },
+      { text: 'honey', isFlagged: false },
+      { text: 'salt', isFlagged: false },
+      { text: 'natural flavors', isFlagged: true, type: 'possible', reason: 'Potential conflict — may contain alcohol carrier or hidden barley malt.' },
+    ],
+    labelWarnings: 'Contains: wheat. May contain: milk, tree nuts.',
+    nutrition: {
+      nutrient: 'Sugar',
+      value: '14 g',
+      servingUnit: 'per serving',
+      limit: '5 g',
+      isExceeded: true,
+    },
+    confidence: '99%',
+    safeScore: 18,
+  },
+
+  caution: {
+    id: 'caution-scan',
+    status: 'Caution',
+    productName: 'Roasted Almond Cluster Crisps',
+    profileSummary: 'Gluten-free, Low sugar',
+    message: 'Contains natural flavoring and shared facility alert. Sugar is slightly bordering threshold.',
+    rawIngredientsText: 'Crisped rice, sorghum flour, tapioca syrup, cane sugar, sunflower oil, natural flavors, sea salt.',
+    ingredients: [
+      { text: 'Crisped rice', isFlagged: false },
+      { text: 'sorghum flour', isFlagged: false },
+      { text: 'tapioca syrup', isFlagged: false },
+      { text: 'cane sugar', isFlagged: true, type: 'possible', reason: 'Borderline sugar level (6g vs 5g limit).' },
+      { text: 'sunflower oil', isFlagged: false },
+      { text: 'natural flavors', isFlagged: true, type: 'possible', reason: 'Source unspecified — potential cross-contact with barley malt.' },
+      { text: 'sea salt', isFlagged: false },
+    ],
+    labelWarnings: 'Made in a facility that also processes wheat, soy, and tree nuts.',
+    nutrition: {
+      nutrient: 'Sugar',
+      value: '6 g',
+      servingUnit: 'per serving',
+      limit: '5 g',
+      isExceeded: true,
+    },
+    confidence: '88%',
+    safeScore: 62,
+  },
+
+  safe: {
+    id: 'safe-scan',
+    status: 'Safe',
+    productName: 'Artisan Brown Rice & Sea Salt Crackers',
+    profileSummary: 'Gluten-free, Low sugar',
+    message: 'No conflicting ingredients detected. Certified gluten-free and well within your sugar limit.',
+    rawIngredientsText: 'Whole grain brown rice flour, potato starch, expeller pressed safflower oil, sea salt, rosemary extract.',
+    ingredients: [
+      { text: 'Whole grain brown rice flour', isFlagged: false },
+      { text: 'potato starch', isFlagged: false },
+      { text: 'expeller pressed safflower oil', isFlagged: false },
+      { text: 'sea salt', isFlagged: false },
+      { text: 'rosemary extract', isFlagged: false },
+    ],
+    labelWarnings: 'Certified Gluten-Free. Produced in a dedicated peanut & gluten-free facility.',
+    nutrition: {
+      nutrient: 'Sugar',
+      value: '0 g',
+      servingUnit: 'per serving',
+      limit: '5 g',
+      isExceeded: false,
+    },
+    confidence: '96%',
+    safeScore: 98,
+  },
+
+  cant_tell: {
+    id: 'cant-tell-scan',
+    status: "Can't tell",
+    productName: 'Energy Bar (Blurry / Glare Detected)',
+    profileSummary: 'Gluten-free, Low sugar',
+    message: 'Label glare and curvature prevented complete optical character recognition on 3 ingredients.',
+    rawIngredientsText: 'Oats [unreadable glare], syrup, malt [obscured], vegetable oil, salt.',
+    ingredients: [
+      { text: 'Oats [unreadable glare]', isFlagged: true, type: 'possible', reason: 'Text glare obscured certification status.' },
+      { text: 'syrup', isFlagged: true, type: 'possible', reason: 'Type of syrup could not be identified.' },
+      { text: 'malt [obscured]', isFlagged: true, type: 'definite', reason: 'High likelihood of gluten-containing barley malt.' },
+      { text: 'vegetable oil', isFlagged: false },
+      { text: 'salt', isFlagged: false },
+    ],
+    labelWarnings: 'Warning: Label incomplete. Please flatten wrapper and re-scan under soft lighting.',
+    nutrition: {
+      nutrient: 'Sugar',
+      value: 'Unreadable',
+      servingUnit: 'per serving',
+      limit: '5 g',
+      isExceeded: true,
+    },
+    confidence: '42%',
+    safeScore: 40,
+  }
+};
