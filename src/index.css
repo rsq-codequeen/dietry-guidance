@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-primary-bg: #FFFFFF;
+  --color-surface-soft: #F4F6F5;
+  --color-chocolate: #362211;
+  --color-leaf: #2E7D32;
+  --color-caramel: #C68B59;
+  --color-unsafe: #C93B2B;
+}
+
+:root {
+  --color-background: #FFFFFF;
+  --color-surface: #F4F6F5;
+  --color-brown: #362211;
+  --color-green: #2E7D32;
+  --color-caramel: #C68B59;
+  --color-danger: #C93B2B;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  color: #362211;
+  background-color: #FFFFFF;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #F4F6F5; }
+::-webkit-scrollbar-thumb { background: rgba(54,34,17,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(54,34,17,0.35); }
+
+.organic-card {
+  background-color: #F4F6F5;
+  border: 1px solid rgba(54,34,17,0.10);
+  border-radius: 22px;
+  box-shadow: 0px 10px 40px rgba(54,34,17,0.06);
+}
