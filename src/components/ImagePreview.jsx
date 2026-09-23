@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Trash2, RefreshCw, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 

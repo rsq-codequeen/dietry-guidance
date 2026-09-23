@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scan, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
 
-export default function LoadingState({ onComplete }) {
+export default function LoadingState() {
   const steps = [
     { title: 'Reading ingredient label...', subtitle: 'Extracting optical text and allergen disclosures', icon: Scan },
     { title: 'Checking dietary restrictions...', subtitle: 'Cross-referencing gluten sources & sugar thresholds', icon: ShieldAlert },
@@ -14,16 +14,11 @@ export default function LoadingState({ onComplete }) {
   useEffect(() => {
     const timer1 = setTimeout(() => setCurrentStep(1), 900);
     const timer2 = setTimeout(() => setCurrentStep(2), 1900);
-    const timer3 = setTimeout(() => {
-      if (onComplete) onComplete();
-    }, 2800);
-
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      clearTimeout(timer3);
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 bg-[#362211]/60 backdrop-blur-md flex items-center justify-center p-4">
@@ -97,7 +92,7 @@ export default function LoadingState({ onComplete }) {
         </div>
 
         <p className="text-[11px] text-[#C68B59] font-medium pt-2">
-          Mock AI Processing • Safe Local Execution
+          Reading the label with your dietary profile
         </p>
       </motion.div>
     </div>

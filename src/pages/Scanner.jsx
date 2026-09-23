@@ -11,62 +11,123 @@ export default function Scanner() {
   const navigate = useNavigate();
   const {
     selectedRestrictions,
+    strictness,
+    customRules,
     currentScanImage,
+    currentScanFile,
     setCurrentScanImage,
+    setCurrentScanFile,
+    setScanResult,
     setActiveResultKey,
     addHistoryRecord,
   } = useDietary();
 
   const [imageName, setImageName] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [intendedResultKey, setIntendedResultKey] = useState('unsafe');
+  const [error, setError] = useState('');
 
-  const handleImageSelected = (url, name, demoKey = 'unsafe') => {
+  const handleImageSelected = (url, name, demoKey, file, selectionError) => {
+    if (selectionError) {
+      setError(selectionError);
+      return;
+    }
     setCurrentScanImage(url);
+    setCurrentScanFile(file);
     setImageName(name);
-    setIntendedResultKey(demoKey);
+    setError('');
   };
 
   const handleRemoveImage = () => {
     setCurrentScanImage(null);
+    setCurrentScanFile(null);
     setImageName('');
+    setError('');
   };
 
-  const handleStartAnalysis = () => {
+  const handleStartAnalysis = async () => {
+    if (!currentScanFile) {
+      setError('Please select an image file before scanning.');
+      return;
+    }
+
     setIsAnalyzing(true);
-  };
+    setError('');
 
-  const handleLoadingComplete = () => {
-    setActiveResultKey(intendedResultKey);
+    try {
+      const formData = new FormData();
+      formData.append('image', currentScanFile);
+      formData.append(
+        'profile',
+        JSON.stringify({ restrictions: selectedRestrictions, strictness, customRules })
+      );
 
-    // Also record in scan history
-    addHistoryRecord({
-      id: `scan-${Date.now()}`,
-      productName:
-        intendedResultKey === 'unsafe'
-          ? 'Honey & Nut Oat Crunch Granola'
-          : 'Artisan Brown Rice Crackers',
-      brand: intendedResultKey === 'unsafe' ? 'Nature Harvest' : 'Simple Grains',
-      category: 'Packaged Grocery',
-      timestamp: 'Just now',
-      date: new Date().toISOString().split('T')[0],
-      status: intendedResultKey === 'unsafe' ? 'Unsafe' : 'Safe',
-      dietaryProfile: selectedRestrictions.join(', ') || 'Gluten-free, Low sugar',
-      primaryWarning:
-        intendedResultKey === 'unsafe'
-          ? 'Contains barley malt, wheat flour & high sugar'
-          : 'Zero gluten detected; low sugar verified',
-      thumbnail:
-        currentScanImage ||
-        'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=300&auto=format&fit=crop&q=60',
-      ingredientsCount: 8,
-      conflictsCount: intendedResultKey === 'unsafe' ? 3 : 0,
-      statusVariant: intendedResultKey,
-      nutritionHighlights: { sugar: intendedResultKey === 'unsafe' ? '14g' : '0g' },
-    });
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
 
-    setIsAnalyzing(false);
-    navigate('/result');
+      if (!response.ok) {
+        throw new Error(data.error || 'The label could not be analyzed.');
+      }
+
+        const resultKey = data.verdict === 'unclear' ? 'cant_tell' : data.verdict;
+        if (!['unsafe', 'caution', 'safe', 'cant_tell'].includes(resultKey)) {
+          throw new Error('The server returned an invalid verdict.');
+        }
+      const flags = Array.isArray(data.flags) ? data.flags : [];
+      const ingredients = (data.ingredients_text || '')
+        .split(/,\s*/)
+        .map((text) => text.trim())
+        .filter(Boolean)
+        .map((text) => {
+          const flag = flags.find((item) =>
+            text.toLowerCase().includes(String(item.text || '').toLowerCase())
+          );
+          return flag
+            ? { text, isFlagged: true, type: flag.level, reason: flag.reason }
+            : { text, isFlagged: false };
+        });
+      const liveResult = {
+        id: `scan-${Date.now()}`,
+        status: resultKey === 'cant_tell' ? "Can't tell" : resultKey[0].toUpperCase() + resultKey.slice(1),
+        productName: imageName,
+        profileSummary: selectedRestrictions.join(', ') || 'No restrictions selected',
+        message: data.summary || 'The label was analyzed.',
+        rawIngredientsText: data.ingredients_text || '',
+        ingredients,
+        labelWarnings: data.warnings || '',
+        nutrition: null,
+        flags,
+        isLive: true,
+      };
+
+      setScanResult(liveResult);
+      setActiveResultKey(resultKey);
+
+      addHistoryRecord({
+        id: liveResult.id,
+        productName: liveResult.productName,
+        brand: 'Label scan',
+        category: 'Packaged Grocery',
+        timestamp: 'Just now',
+        date: new Date().toISOString().split('T')[0],
+        status: liveResult.status,
+        dietaryProfile: liveResult.profileSummary,
+        primaryWarning: liveResult.message,
+        thumbnail: currentScanImage,
+        ingredientsCount: ingredients.length,
+        conflictsCount: flags.filter((flag) => flag.level === 'definite').length,
+        statusVariant: resultKey,
+        nutritionHighlights: {},
+      });
+
+      navigate('/result');
+    } catch (requestError) {
+      setError(requestError.message || 'Could not connect to the analysis server.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const restrictionString =
@@ -139,6 +200,12 @@ export default function Scanner() {
           )}
         </AnimatePresence>
 
+        {error && (
+          <p className="rounded-xl border border-[#C93B2B]/30 bg-[#C93B2B]/10 px-4 py-3 text-sm font-semibold text-[#C93B2B]">
+            {error}
+          </p>
+        )}
+
         {/* Bottom Disclaimer matching screenshot 2 */}
         <p className="text-[11px] sm:text-xs text-center text-[#362211]/55 pt-3 border-t border-[#362211]/8">
           AI can misread labels. Always double-check. Not medical advice.
@@ -147,9 +214,7 @@ export default function Scanner() {
 
       {/* Animated Loading Overlay during mock analysis */}
       <AnimatePresence>
-        {isAnalyzing && (
-          <LoadingState onComplete={handleLoadingComplete} />
-        )}
+        {isAnalyzing && <LoadingState />}
       </AnimatePresence>
     </div>
   );

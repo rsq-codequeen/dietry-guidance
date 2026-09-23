@@ -16,6 +16,8 @@ export function DietaryProvider({ children }) {
   
   // 4. Scanned image (local object URL or mock sample)
   const [currentScanImage, setCurrentScanImage] = useState(null);
+  const [currentScanFile, setCurrentScanFile] = useState(null);
+  const [scanResult, setScanResult] = useState(null);
   
   // 5. Current active result key: 'unsafe', 'caution', 'safe', 'cant_tell'
   const [activeResultKey, setActiveResultKey] = useState('unsafe');
@@ -42,7 +44,7 @@ export function DietaryProvider({ children }) {
   };
 
   // Helper for current active result object
-  const currentResult = MOCK_RESULTS[activeResultKey] || MOCK_RESULTS.unsafe;
+  const currentResult = scanResult || MOCK_RESULTS[activeResultKey] || MOCK_RESULTS.unsafe;
 
   const addHistoryRecord = (record) => {
     setHistory((prev) => [record, ...prev]);
@@ -64,6 +66,10 @@ export function DietaryProvider({ children }) {
         setCustomRules,
         currentScanImage,
         setCurrentScanImage,
+        currentScanFile,
+        setCurrentScanFile,
+        scanResult,
+        setScanResult,
         activeResultKey,
         setActiveResultKey,
         currentResult,

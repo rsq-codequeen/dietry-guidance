@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
-import { Leaf, ShieldCheck, HeartHandshake, AlertCircle, ExternalLink } from 'lucide-react';
+import { Leaf, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function Footer() {
   return (

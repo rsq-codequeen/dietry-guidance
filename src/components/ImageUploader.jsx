@@ -10,23 +10,26 @@ export default function ImageUploader({ onImageSelected }) {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      onImageSelected(url, file.name);
+      onImageSelected(url, file.name, undefined, file);
     }
   };
 
-  const handleSampleSelect = (type) => {
-    if (type === 'unsafe') {
-      onImageSelected(
-        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
-        'Granola_Cereal_Nutrition_Label.jpg',
-        'unsafe'
-      );
-    } else {
-      onImageSelected(
-        'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=800&auto=format&fit=crop&q=80',
-        'Rice_Crackers_Organic_Label.jpg',
-        'safe'
-      );
+  const handleSampleSelect = async (type) => {
+    try {
+      const imageUrl = type === 'unsafe'
+        ? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80'
+        : 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=800&auto=format&fit=crop&q=80';
+      const imageName = type === 'unsafe'
+        ? 'Granola_Cereal_Nutrition_Label.jpg'
+        : 'Rice_Crackers_Organic_Label.jpg';
+
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error('Demo image download failed.');
+      const blob = await response.blob();
+      const file = new File([blob], imageName, { type: blob.type || 'image/jpeg' });
+      onImageSelected(imageUrl, imageName, type, file);
+    } catch (error) {
+      onImageSelected(null, '', undefined, null, error.message);
     }
   };
 

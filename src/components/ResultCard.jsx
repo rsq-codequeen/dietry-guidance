@@ -57,25 +57,27 @@ export default function ResultCard({
   return (
     <div className="space-y-4">
       {/* Top Demo State Switcher (matching reference screenshot 1 top header) */}
-      <div className="bg-[#F4F6F5] p-1.5 rounded-2xl border border-[#362211]/12 flex items-center gap-1 overflow-x-auto">
-        {modes.map((mode) => {
-          const isSelected = activeKey === mode.key;
-          return (
-            <button
-              key={mode.key}
-              type="button"
-              onClick={() => onSelectKey(mode.key)}
-              className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                isSelected
-                  ? 'bg-[#362211] text-white shadow-sm'
-                  : 'text-[#362211]/70 hover:text-[#362211] hover:bg-white/60'
-              }`}
-            >
-              {mode.label}
-            </button>
-          );
-        })}
-      </div>
+      {!result.isLive && (
+        <div className="bg-[#F4F6F5] p-1.5 rounded-2xl border border-[#362211]/12 flex items-center gap-1 overflow-x-auto">
+          {modes.map((mode) => {
+            const isSelected = activeKey === mode.key;
+            return (
+              <button
+                key={mode.key}
+                type="button"
+                onClick={() => onSelectKey(mode.key)}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#362211] text-white shadow-sm'
+                    : 'text-[#362211]/70 hover:text-[#362211] hover:bg-white/60'
+                }`}
+              >
+                {mode.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Sub-header navigation row */}
       <div className="flex items-center justify-between px-1 text-sm font-semibold">
